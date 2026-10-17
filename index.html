@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ملاحظاتي</title>
+<style>
+:root{
+  --bg:#F2F4F7; --surface:#FFFFFF; --ink:#18232F; --muted:#6B7886; --line:#DDE2E8;
+  --hl-y:#FFE45C; --hl-g:#9BE08F; --accent:#1F4E79;
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#10161D; --surface:#19222C; --ink:#E8EDF2; --muted:#93A0AE; --line:#2A3542; --accent:#7FB2E5}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif;padding-top:var(--safe-t)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.app{height:100%;display:flex;flex-direction:column;max-width:720px;margin:auto}
+.screen{display:none;flex:1;min-height:0;flex-direction:column}
+.screen.on{display:flex}
+
+header{padding:14px 16px 6px;display:flex;align-items:center;gap:10px}
+h1{font-size:22px;margin:0;flex:1}
+.icon-btn{width:40px;height:40px;border-radius:12px;background:var(--surface);border:1px solid var(--line);font-size:18px}
+
+.search{margin:6px 16px 8px;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;width:calc(100% - 32px)}
+
+.chips{display:flex;gap:8px;overflow-x:auto;padding:4px 16px 10px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;display:flex;align-items:center;gap:7px;padding:6px 13px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);font-size:14px;white-space:nowrap}
+.chip i{width:10px;height:10px;border-radius:50%;display:block}
+.chip.on{border-color:var(--c,var(--accent));background:color-mix(in srgb,var(--c,var(--accent)) 14%,var(--surface))}
+
+.list{flex:1;overflow-y:auto;padding:4px 16px calc(100px + var(--safe-b));display:flex;flex-direction:column;gap:10px}
+.card{position:relative;text-align:start;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;padding-inline-start:20px;overflow:hidden}
+.card::before{content:"";position:absolute;inset-block:0;inset-inline-start:0;width:6px;background:var(--c)}
+.card b{display:block;font-size:16px}
+.card small{color:var(--muted)}
+.card p{margin:2px 0 6px;color:var(--muted);font-size:14px;max-height:3.2em;overflow:hidden}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+.tag i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.empty{margin:60px 24px;text-align:center;color:var(--muted)}
+
+.bar{position:fixed;inset-inline:0;bottom:0;display:flex;gap:10px;justify-content:center;padding:10px 16px calc(10px + var(--safe-b));background:var(--surface);border-top:1px solid var(--line);z-index:2}
+.bar .bell{width:54px;height:54px;border-radius:16px;border:1.5px solid var(--line);font-size:22px;position:relative}
+.bar .bell.on::after{content:"";position:absolute;top:9px;inset-inline-end:9px;width:10px;height:10px;border-radius:50%;background:#2E9E5B;border:2px solid var(--surface)}
+.fab{flex:1;max-width:520px;height:54px;border-radius:16px;background:var(--accent);color:#fff;font-weight:700;font-size:17px}
+@media (prefers-color-scheme:dark){.fab{color:#0B1620}}
+.sw-row{display:flex;align-items:center;gap:12px;padding:10px 0}
+.sw-row span{flex:1}
+.toggle{width:52px;height:30px;border-radius:15px;background:var(--line);position:relative;flex:none}
+.toggle::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:inset-inline-start .15s}
+.toggle.on{background:#2E9E5B}
+.toggle.on::after{inset-inline-start:25px}
+.hint{color:var(--muted);font-size:13.5px;margin:6px 0 10px}
+.sel{display:flex;gap:10px}
+.sel label{flex:1;font-size:13.5px;color:var(--muted)}
+.sel select{width:100%;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;margin-top:4px}
+/* editor */
+.ed-head{display:flex;align-items:center;gap:8px;padding:10px 12px}
+.ed-head .grow{flex:1}
+.sub-pick{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:12px;border:1.5px solid var(--c);background:color-mix(in srgb,var(--c) 14%,var(--surface));color:var(--ink);font:inherit;max-width:100%}
+.sub-pick i{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.title{margin:2px 16px;padding:8px 0;border:0;border-bottom:2px solid var(--c);background:none;color:var(--ink);font:700 20px/1.4 inherit;font-family:inherit;outline:none;width:calc(100% - 32px)}
+.body{flex:1;min-height:0;overflow-y:auto;padding:14px 16px 90px;outline:none;font-size:17px;line-height:1.85}
+.body:empty::before{content:attr(data-ph);color:var(--muted)}
+.body span[style*="background"]{border-radius:3px;padding:0 2px;color:#18232F}
+.toolbar{position:fixed;inset-inline:0;bottom:0;display:flex;justify-content:center;gap:10px;padding:10px 12px calc(10px + var(--safe-b));background:var(--surface);border-top:1px solid var(--line)}
+.tb{height:44px;min-width:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line);font-weight:600;display:flex;align-items:center;gap:8px}
+.tb.y i{background:var(--hl-y)} .tb.g i{background:var(--hl-g)}
+.tb i{width:18px;height:18px;border-radius:5px;display:block;border:1px solid rgba(0,0,0,.2)}
+
+/* sheet */
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:flex-end;justify-content:center;z-index:5}
+.sheet-bg.on{display:flex}
+.sheet{width:100%;max-width:720px;background:var(--surface);border-radius:20px 20px 0 0;padding:18px 16px calc(18px + var(--safe-b));max-height:85%;overflow-y:auto}
+.sheet h2{margin:0 0 12px;font-size:18px}
+.row{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px solid var(--line)}
+.row .dot{width:22px;height:22px;border-radius:50%;background:var(--c);flex:none}
+.row span{flex:1}
+.row .x{color:var(--muted);padding:6px 10px}
+.field{width:100%;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;margin:8px 0}
+.swatches{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 14px}
+.sw{width:36px;height:36px;border-radius:50%;background:var(--c);border:3px solid transparent}
+.sw.on{border-color:var(--ink)}
+.btn{width:100%;height:46px;border-radius:12px;background:var(--accent);color:#fff;font-weight:600;margin-top:6px}
+@media (prefers-color-scheme:dark){.btn{color:#0B1620}}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--ink)}
+.btn.danger{background:none;color:#C0392B;border:1px solid #C0392B55}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <section class="screen on" id="home">
+    <header>
+      <h1>ملاحظاتي</h1>
+      <button class="icon-btn" id="manage" aria-label="إدارة المواد">⚙</button>
+    </header>
+    <input class="search" id="q" placeholder="ابحث بالملاحظات">
+    <div class="chips" id="chips"></div>
+    <div class="list" id="list"></div>
+    <div class="bar"><button class="bell" id="bell" aria-label="التذكيرات">🔔</button><button class="fab" id="add">+ ملاحظة جديدة</button></div>
+  </section>
+
+  <section class="screen" id="editor">
+    <div class="ed-head">
+      <button class="icon-btn" id="back" aria-label="رجوع">→</button>
+      <div class="grow"><button class="sub-pick" id="pick"><i></i><span></span></button></div>
+      <button class="icon-btn" id="del" aria-label="حذف الملاحظة">🗑</button>
+    </div>
+    <input class="title" id="title" placeholder="العنوان">
+    <div class="body" id="body" contenteditable="true" data-ph="اكتب ملاحظتك هون. حدد نص واضغط على لون التظليل."></div>
+    <div class="toolbar">
+      <button class="tb y" data-hl="#FFE45C"><i></i>أصفر</button>
+      <button class="tb g" data-hl="#9BE08F"><i></i>أخضر</button>
+      <button class="tb" data-hl="clear">إزالة التظليل</button>
+    </div>
+  </section>
+</div>
+
+<div class="sheet-bg" id="sheetbg"><div class="sheet" id="sheet"></div></div>
+
+<script>
+const COLORS=['#E5484D','#F76B15','#E0A800','#2E9E5B','#12A594','#2F7DD1','#6E56CF','#D6409F','#8B6F5A','#5C6B7A'];
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+let subjects=store.get('subjects',[
+  {id:'s1',name:'باطنة',color:'#E5484D'},
+  {id:'s2',name:'جراحة',color:'#2F7DD1'},
+  {id:'s3',name:'أطفال',color:'#2E9E5B'},
+  {id:'s4',name:'نسائية',color:'#6E56CF'}
+]);
+let notes=store.get('notes',[]);
+let filter='all', cur=null, saveT=null;
+const $=id=>document.getElementById(id);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const subj=id=>subjects.find(s=>s.id===id)||{name:'بدون مادة',color:'#5C6B7A'};
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const plain=h=>{const d=document.createElement('div');d.innerHTML=h;return d.textContent.trim()};
+const persist=()=>{store.set('subjects',subjects);store.set('notes',notes)};
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id))}
+
+function renderChips(){
+  const all=`<button class="chip ${filter==='all'?'on':''}" data-f="all">الكل</button>`;
+  $('chips').innerHTML=all+subjects.map(s=>
+    `<button class="chip ${filter===s.id?'on':''}" style="--c:${s.color}" data-f="${s.id}"><i style="background:${s.color}"></i>${esc(s.name)}</button>`).join('');
+}
+function renderList(){
+  const q=$('q').value.trim().toLowerCase();
+  const rows=notes.filter(n=>(filter==='all'||n.subject===filter)&&(!q||(n.title+' '+plain(n.html)).toLowerCase().includes(q)))
+    .sort((a,b)=>b.updated-a.updated);
+  if(!rows.length){$('list').innerHTML=`<div class="empty">${notes.length?'ما في نتائج':'ما عندك ملاحظات بعد. اضغط «ملاحظة جديدة» وابدأ.'}</div>`;return}
+  $('list').innerHTML=rows.map(n=>{
+    const s=subj(n.subject);
+    return `<button class="card" style="--c:${s.color}" data-id="${n.id}">
+      <b>${esc(n.title||'بدون عنوان')}</b>
+      <p>${esc(plain(n.html).slice(0,140))}</p>
+      <span class="tag"><i></i>${esc(s.name)}</span></button>`}).join('');
+}
+function render(){renderChips();renderList()}
+
+$('chips').onclick=e=>{const b=e.target.closest('[data-f]');if(b){filter=b.dataset.f;render()}};
+$('q').oninput=renderList;
+$('list').onclick=e=>{const c=e.target.closest('[data-id]');if(c)openNote(c.dataset.id)};
+
+/* editor */
+function paintEditor(){
+  const s=subj(cur.subject);
+  $('editor').style.setProperty('--c',s.color);
+  $('pick').style.setProperty('--c',s.color);
+  $('pick').querySelector('i').style.background=s.color;
+  $('pick').querySelector('span').textContent=s.name;
+}
+function openNote(id){
+  cur=notes.find(n=>n.id===id);
+  $('title').value=cur.title;$('body').innerHTML=cur.html;
+  paintEditor();show('editor');
+}
+$('add').onclick=()=>{
+  const n={id:uid(),subject:filter!=='all'?filter:(subjects[0]||{}).id,title:'',html:'',updated:Date.now()};
+  notes.push(n);persist();openNote(n.id);$('title').focus();
+};
+function saveNow(){
+  if(!cur)return;
+  cur.title=$('title').value;cur.html=$('body').innerHTML;cur.updated=Date.now();persist();
+}
+function queueSave(){clearTimeout(saveT);saveT=setTimeout(saveNow,400)}
+$('title').oninput=queueSave;$('body').oninput=queueSave;
+$('back').onclick=()=>{
+  saveNow();
+  if(cur&&!cur.title.trim()&&!plain(cur.html)){notes=notes.filter(n=>n!==cur);persist()}
+  cur=null;render();show('home');
+};
+$('del').onclick=()=>sheet(`<h2>حذف الملاحظة؟</h2><button class="btn danger" id="yes">حذف</button><button class="btn ghost" id="no">إلغاء</button>`,()=>{
+  $('yes').onclick=()=>{notes=notes.filter(n=>n!==cur);persist();cur=null;closeSheet();render();show('home')};
+  $('no').onclick=closeSheet;
+});
+
+/* highlights: keep the text selection while tapping the buttons */
+document.querySelectorAll('.tb').forEach(b=>{
+  b.addEventListener('pointerdown',e=>e.preventDefault());
+  b.addEventListener('click',()=>{
+    $('body').focus();
+    const c=b.dataset.hl;
+    document.execCommand('styleWithCSS',false,true);
+    document.execCommand('hiliteColor',false,c==='clear'?'transparent':c);
+    queueSave();
+  });
+});
+
+/* sheet */
+function sheet(html,after){$('sheet').innerHTML=html;$('sheetbg').classList.add('on');after&&after()}
+function closeSheet(){$('sheetbg').classList.remove('on')}
+$('sheetbg').onclick=e=>{if(e.target===$('sheetbg'))closeSheet()};
+
+$('pick').onclick=()=>sheet(
+  `<h2>اختر المادة</h2>`+subjects.map(s=>`<button class="row" style="--c:${s.color};width:100%;text-align:start" data-s="${s.id}"><i class="dot"></i><span>${esc(s.name)}</span></button>`).join(''),
+  ()=>$('sheet').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{cur.subject=b.dataset.s;persist();paintEditor();closeSheet()}));
+
+/* manage subjects */
+function manage(){
+  sheet(`<h2>المواد</h2>`+subjects.map(s=>`<div class="row" style="--c:${s.color}"><i class="dot"></i><span>${esc(s.name)}</span><button class="x" data-e="${s.id}">تعديل</button></div>`).join('')+
+    `<button class="btn" id="new" style="margin-top:14px">+ مادة جديدة</button>`,()=>{
+    $('new').onclick=()=>editSubject();
+    $('sheet').querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>editSubject(b.dataset.e));
+  });
+}
+function editSubject(id){
+  const s=id?subjects.find(x=>x.id===id):{name:'',color:COLORS[subjects.length%COLORS.length]};
+  let color=s.color;
+  sheet(`<h2>${id?'تعديل المادة':'مادة جديدة'}</h2>
+    <input class="field" id="sn" placeholder="اسم المادة" value="${esc(s.name)}">
+    <div class="swatches">${COLORS.map(c=>`<button class="sw ${c===color?'on':''}" style="--c:${c}" data-c="${c}" aria-label="لون"></button>`).join('')}</div>
+    <button class="btn" id="ok">حفظ</button>
+    ${id?'<button class="btn danger" id="rm">حذف المادة</button>':''}
+    <button class="btn ghost" id="cn">رجوع</button>`,()=>{
+    $('sheet').querySelectorAll('.sw').forEach(b=>b.onclick=()=>{
+      color=b.dataset.c;$('sheet').querySelectorAll('.sw').forEach(x=>x.classList.toggle('on',x===b))});
+    $('ok').onclick=()=>{
+      const name=$('sn').value.trim();if(!name)return;
+      if(id){s.name=name;s.color=color}else subjects.push({id:uid(),name,color});
+      persist();render();manage();
+    };
+    if(id)$('rm').onclick=()=>{
+      subjects=subjects.filter(x=>x.id!==id);
+      notes.forEach(n=>{if(n.subject===id)n.subject=null});
+      if(filter===id)filter='all';
+      persist();render();manage();
+    };
+    $('cn').onclick=manage;
+  });
+}
+$('manage').onclick=manage;
+
+render();
+
+/* ---------- التذكيرات ---------- */
+const LN=()=>window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.LocalNotifications;
+let rem=Object.assign({on:false,every:6,wake:9,sleep:0},store.get('reminders',{}));
+const saveRem=()=>store.set('reminders',rem);
+const pad=n=>String(n).padStart(2,'0');
+
+function buildTimes(){
+  const out=[],now=Date.now();
+  const end=(rem.sleep===0||rem.sleep<=rem.wake)?24:rem.sleep;
+  for(let d=0;d<8;d++){
+    for(let h=rem.wake;h<end;h+=rem.every){
+      const t=new Date();t.setDate(t.getDate()+d);t.setHours(h,0,0,0);
+      if(t.getTime()>now+60000)out.push(t);
+    }
+  }
+  return out;
+}
+function pickNotes(count){
+  const pool=notes.filter(n=>plain(n.html)||n.title.trim());
+  if(!pool.length)return [];
+  const a=pool.slice().sort(()=>Math.random()-.5),res=[];
+  for(let i=0;i<count;i++)res.push(a[i%a.length]);
+  return res;
+}
+async function reschedule(){
+  const ln=LN();if(!ln)return;
+  try{
+    const pend=await ln.getPending();
+    if(pend.notifications&&pend.notifications.length)await ln.cancel({notifications:pend.notifications.map(n=>({id:n.id}))});
+    if(!rem.on)return;
+    const times=buildTimes(),picks=pickNotes(times.length);
+    if(!picks.length)return;
+    await ln.schedule({notifications:times.map((t,i)=>{
+      const n=picks[i],s=subj(n.subject);
+      return {id:1000+i,title:(n.title.trim()||'ملاحظة')+' · '+s.name,body:plain(n.html).slice(0,160)||'افتح التطبيق لتشوف ملاحظتك',schedule:{at:t,allowWhileIdle:true}};
+    })});
+  }catch(e){}
+}
+async function enableReminders(){
+  const ln=LN();
+  if(ln){
+    try{const r=await ln.requestPermissions();if(r.display!=='granted'){return false}}catch(e){return false}
+  }else if('Notification' in window){
+    try{if(await Notification.requestPermission()!=='granted')return false}catch(e){return false}
+  }
+  return true;
+}
+async function testNow(){
+  const pool=pickNotes(1),n=pool[0];
+  const title=n?((n.title.trim()||'ملاحظة')+' · '+subj(n.subject).name):'تجربة التذكير';
+  const body=n?(plain(n.html).slice(0,160)||'ملاحظتك'):'ما عندك ملاحظات بعد';
+  const ln=LN();
+  if(ln){await ln.schedule({notifications:[{id:999,title,body,schedule:{at:new Date(Date.now()+3000)}}]})}
+  else if('Notification' in window&&Notification.permission==='granted'){new Notification(title,{body})}
+}
+function remSheet(){
+  const hrs=(from,to,sel)=>{let o='';for(let h=from;h<=to;h++)o+=`<option value="${h}" ${h===sel?'selected':''}>${pad(h%24)}:00</option>`;return o};
+  sheet(`<h2>تذكيرات الأفكار</h2>
+    <div class="sw-row"><span>إرسال إشعارات من ملاحظاتي</span><button class="toggle ${rem.on?'on':''}" id="tg" aria-label="تشغيل"></button></div>
+    <div class="sel">
+      <label>كل<select id="ev">${[3,4,6,8,12].map(h=>`<option value="${h}" ${h===rem.every?'selected':''}>${h} ساعات</option>`).join('')}</select></label>
+      <label>بداية النهار<select id="wk">${hrs(6,12,rem.wake)}</select></label>
+      <label>بداية النوم<select id="sl"><option value="0" ${rem.sleep===0?'selected':''}>00:00</option>${hrs(21,23,rem.sleep)}</select></label>
+    </div>
+    <p class="hint">بتوصلك إشعارات بالأوقات اللي بين بداية النهار وبداية النوم، وكل إشعار بيعرض ملاحظة عشوائية من ملاحظاتك. ${LN()?'':'<br><b>الإشعارات الخلفية بتشتغل بس بتطبيق الـ APK.</b>'}</p>
+    <button class="btn ghost" id="ts">جرّب إشعار الآن</button>
+    <button class="btn" id="dn">تم</button>`,()=>{
+    const apply=async()=>{
+      rem.every=+$('ev').value;rem.wake=+$('wk').value;rem.sleep=+$('sl').value;saveRem();
+      $('bell').classList.toggle('on',rem.on);await reschedule();
+    };
+    $('tg').onclick=async()=>{
+      if(!rem.on){if(!(await enableReminders())){$('sheet').querySelector('.hint').textContent='ما انعطت صلاحية الإشعارات. فعّلها من إعدادات الموبايل ثم جرّب مرة ثانية.';return}}
+      rem.on=!rem.on;$('tg').classList.toggle('on',rem.on);await apply();
+    };
+    ['ev','wk','sl'].forEach(id=>$(id).onchange=apply);
+    $('ts').onclick=async()=>{if(await enableReminders())testNow()};
+    $('dn').onclick=closeSheet;
+  });
+}
+$('bell').onclick=remSheet;
+$('bell').classList.toggle('on',rem.on);
+reschedule();
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)reschedule()});
+const _back=$('back').onclick;
+$('back').onclick=()=>{_back();reschedule()};
+</script>
+</body>
+</html>
